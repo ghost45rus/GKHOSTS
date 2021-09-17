@@ -128,7 +128,7 @@
 
         //Функция добавления выбранного сотрудника в список
         function addToList(){
-            console.log("клик на кнопку добавить")
+
             if (selectedStaff != ""){
                 let person = staff.find(obj => obj.id === selectedStaff)
                 let staffPositon = positions.find(position => position.id === person.positions_id);
@@ -146,7 +146,7 @@
         // Функция очистки выбранного
 
         function cleanList(){
-            console.log($("#person_list").find("div"));
+
             $("#person_list").children().not('.notsure').remove();
         }
 

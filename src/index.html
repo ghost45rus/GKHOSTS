@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="container">
+    <input type="checkbox" id="positions_10" value="10">
+    <label for="positions_10">Директора</label>
+    <input type="checkbox" id="positions_20" value="20">
+    <label for="positions_20">Инженеры</label>
+    <input type="checkbox" id="positions_30" value="30">
+    <label for="positions_30">Менеджеры</label>
+
+    <div class="lists">
+        <!--Выпадающий список оргинизаций -->
+        <div id="list_organizations" class="box">
+            <h3 class="disabled">Организации<span data-nameTeg="organizations" class="expand">+</span></h3>
+            <ul>
+            </ul>
+        </div>
+        <!--Выпадающий список сотрудников -->
+        <div id="list_staff" class="box">
+            <h3 class="disabled">Сотрудники<span data-nameTeg="staff" class="expand">+</span></h3>
+            <ul>
+            </ul>
+        </div>
+    </div>
+    <!--Блок вывода -->
+    <div id="person_list">
+
+    </div>
+    <div class="buttons">
+        <button type="button" onclick="addToList()">Добавить</button>
+        <button type="button" onclick="cleanList()">Очистить</button>
+    </div>
+
+</div>
+
+
+
+<script
+        src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+        crossorigin="anonymous"></script>
+<script lang="javascript">
+
+
+        let organizations = [
+            {id: 1, name: "Lada"},
+            {id: 2, name: "Audi"},
+            {id: 3, name: "Toyota"},
+        ];
+        let positions = [
+            {id: 10, name: "Директор"},
+            {id: 20, name: "Инженер"},
+            {id: 30, name: "Менеджер"
+            },
+        ];
+        let staff = [
+            {id: 1, name: "Сидоров Иван Петрович", organizations_id: 1, positions_id: 10},
+            {id: 2, name: "Клюквина Анастасия Викторовна", organizations_id: 1, positions_id: 30},
+            {id: 3, name: "Yoshimoro Katsumi", organizations_id: 3, positions_id: 10},
+            {id: 4, name: "Albrecht Wallenstein", organizations_id: 2, positions_id: 20},
+            {id: 5, name: "Архипов Федот Ярополкович", organizations_id: 1, positions_id: 20},
+            {id: 6, name: "Синицина Ксения Игоревна", organizations_id: 1, positions_id: 30},
+            {id: 7, name: "Gustaf Grefberg", organizations_id: 2, positions_id: 10},
+            {id: 8, name: "Simidzu Koyama", organizations_id: 3, positions_id: 20},
+            {id: 9, name: "Miura Hirana", organizations_id: 3, positions_id: 20},
+            {id: 10, name: "Кузьмин Егор Владимирович", organizations_id: 1, positions_id: 30},
+            {id: 11, name: "Мазурик Алена Васильевна", organizations_id: 1, positions_id: 20},
+            {id: 12, name: "Gudrun Ensslin", organizations_id: 2, positions_id: 30},
+            {id: 13, name: "Erns Rommel", organizations_id: 2, positions_id: 20},
+        ];
+        let listStaffUl = $("#list_staff").find("ul");
+        let listOrganizationsUl = $("#list_organizations").find("ul");
+        let selectedOrganization = "";
+        let selectedStaff = "";
+        let filteredStaff = [];
+        let filteredStaffByOrganization = []
+
+        //Скрываем выпадашки
+        $("ul").hide();
+
+        //Гененрируем список организаций
+        organizations.forEach(element => {
+            listOrganizationsUl.append('<li onclick="select(true)" data-name=' + element.id + '>'+element.name+'</li>')
+        })
+
+        //Функция генерирующая персонал по организации
+        function generateListStaffOrganization() {
+            selectedStaff = "";
+            listStaffUl.find("li").remove();
+            filteredStaffByOrganization = filteredStaff.filter(element => element.organizations_id == selectedOrganization)
+            if (filteredStaffByOrganization.length != 0){
+                if ($("#list_staff").find("h3").hasClass("disabled")){
+                    $("#list_staff").find("h3").removeClass("disabled")
+                }
+                filteredStaffByOrganization.forEach(element => {
+                    listStaffUl.append('<li onclick="select(false)" data-name=' + element.id + '>'+element.name+'</li>')
+                })
+            }
+        }
+
+        //Функция обработки нажатия на список
+        function select(key){
+            let target = $(event.target);
+            target.parent().find("li").removeClass("active");
+            target.addClass("active");
+            if (key){
+                selectedOrganization = Number(event.target.dataset.name)
+                generateListStaffOrganization()
+            }
+            else{
+                selectedStaff = Number(event.target.dataset.name);
+            }
+
+
+
+
+
+        }
+
+        //Функция добавления выбранного сотрудника в список
+        function addToList(){
+            console.log("клик на кнопку добавить")
+            if (selectedStaff != ""){
+                let person = staff.find(obj => obj.id === selectedStaff)
+                let staffPositon = positions.find(position => position.id === person.positions_id);
+                let staffOrganization = organizations.find(organization => organization.id === person.organizations_id)
+                let cell = $('<div class="listItem"></div>');
+                cell.append('<p>'+ person.name +' - '+ staffPositon.name +' ('+ staffOrganization.name+')</p>');
+                $("#list_organizations").find("ul").slideToggle();
+                $("#list_staff").find("ul").slideToggle();
+                $("#person_list").append(cell);
+
+            }
+
+        }
+
+        // Функция очистки выбранного
+
+        function cleanList(){
+            console.log($("#person_list").find("div"));
+            $("#person_list").children().not('.notsure').remove();
+        }
+
+        //Действия при клике на раскрывашку
+        $("h3 span").on("click", function(){
+
+            if (filteredStaff.length != 0){
+
+                if(!$(this).parent().hasClass("disabled")){
+                        $(this).parent().next().slideToggle();
+                }
+            }
+            else{
+                alert("Не выбраны фильтры должностей!");
+            }
+        });
+
+        //Действия при клике на чекбокс
+        $('input[type="checkbox"]').on("click", function () {
+            if ($(this).is(':checked')) {
+                if ($("#list_organizations").find("h3").hasClass("disabled")){
+                    $("#list_organizations").find("h3").removeClass("disabled")
+                }
+                staff.forEach(element => {
+                    if (element.positions_id === Number($(this).val())){
+                        filteredStaff.push(element)
+                    }
+                })
+            } else {
+                filteredStaff = filteredStaff.filter(element => element.positions_id !== Number($(this).val()));
+            }
+            if (selectedOrganization != ""){
+                generateListStaffOrganization()
+            }
+            if (filteredStaff.length == 0){
+                $("#list_staff").find("h3").addClass("disabled")
+                $("#list_organizations").find("h3").addClass("disabled");
+                $("#list_organizations").find("ul").slideToggle();
+                $("#list_staff").find("ul").slideToggle();
+                if ($("li[data-name=" + selectedOrganization + "]").hasClass('active')){
+                    $("li[data-name=" + selectedOrganization + "]").removeClass('active');
+                }
+                selectedOrganization = "";
+            }
+        })
+
+</script>
+</body>
+</html>
